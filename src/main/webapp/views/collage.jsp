@@ -5,7 +5,8 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="${pageContext.request.contextPath}/resources/pics/twitter_newbird_boxed_whiteonblue.png">
+    <link rel="icon" href="/favicon.ico">
+
     <title>Twitter Collage</title>
     <link href="${pageContext.request.contextPath}/resources/css/bootstrap.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/resources/css/signin.css" rel="stylesheet">
