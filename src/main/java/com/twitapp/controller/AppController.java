@@ -2,6 +2,7 @@ package com.twitapp.controller;
 
 import com.twitapp.user.data.TwitterUser;
 import com.twitapp.user.service.TwitterUserService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,8 @@ import java.util.List;
 @Controller
 @RequestMapping(value = "/")
 public class AppController {
+
+    private static final Logger LOG = Logger.getLogger(AppController.class);
 
     @Autowired
     private TwitterUserService twitterUserService;
@@ -57,18 +60,22 @@ public class AppController {
             } catch (TwitterException e) {
                 if (e.getStatusCode() == 404) {
                     message = "Користувача з таким логіном не існує.";
+                    LOG.error("User doesn't exists with this login: '" + login + "'. Status: " + e.getStatusCode());
                 } else if (e.getStatusCode() == 429) {
                     DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                     Calendar cal = Calendar.getInstance();
-                    message = "Вибачте, цей сервер тимчасово недоступний. Спробуйте знову через 15 хвилин." + dateFormat.format(cal.getTime());
+                    message = "Вибачте, цей сервер тимчасово недоступний. Спробуйте знову через 15 хвилин.";
+                    LOG.error("Twitter server timeout for 15 minutes. Current time" +  dateFormat.format(cal.getTime()) + ". Status: " + e.getStatusCode());
                 } else {
                     message = "Вибачте, на сервері виникла помилка. Спробуйте знову.";
+                    LOG.error("Another twitter server error. Status: " + e.getStatusCode(), e);
                 }
                 request.getSession().setAttribute("error", message);
                 return "redirect:/";
             } catch (IOException e) {
                 message = "Вибачте, на сервері виникла помилка. Спробуйте знову.";
                 request.getSession().setAttribute("error", message);
+                LOG.error("IO error", e);
                 return "redirect:/";
             }
         }
@@ -88,6 +95,20 @@ public class AppController {
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
         return new ResponseEntity<>(image, headers, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/logs", method = RequestMethod.GET,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<byte[]> downloadLogs() throws IOException{
+        String filename = "../webapps/project-data/log_file.log";
+        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(filename)));
+        byte[] log = new byte[inputStream.available()];
+        for(int i = 0, count = 0; (i = inputStream.read()) != -1;){
+            log[count++] = (byte)i;
+        }
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        return new ResponseEntity<>(log, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "back", method = RequestMethod.GET)

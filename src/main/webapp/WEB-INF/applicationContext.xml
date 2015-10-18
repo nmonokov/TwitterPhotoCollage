@@ -19,7 +19,7 @@
        <mvc:resources mapping="/resources/**" location="/resources/"
                       cache-period="31556926"/>
 
-       <mvc:resources mapping="/favicon.ico" location="/favicon.ico"/>
+       <mvc:resources mapping="/favicon.ico" location="/resources/pics/favicon.ico"/>
 
        <mvc:annotation-driven />
 
