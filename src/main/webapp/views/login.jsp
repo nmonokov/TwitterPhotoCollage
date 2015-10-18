@@ -5,18 +5,18 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="/resources/pics/favicon.ico">
+        <link href="/resources/pics/favicon.ico" rel="icon">
 
         <title>Twitter Collage | Login</title>
-        <link href=${pageContext.request.contextPath}"/resources/css/styles.css" rel="stylesheet">
-        <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/validation.js"></script>
-        <link href="${pageContext.request.contextPath}/resources/css/bootstrap.min.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/resources/css/signin.css" rel="stylesheet">
+        <link href="/resources/css/styles.css" rel="stylesheet">
+        <script src="/resources/js/validation.js" type="text/javascript" ></script>
+        <link href="/resources/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/resources/css/signin.css" rel="stylesheet">
+        <link href="/resources/css/sticky-footer.css" rel="stylesheet"/>
     </head>
 
     <body>
         <div class="container">
-
             <form class="form-signin" method="get">
                 <h4 class="form-signin-heading" style="text-align:center">Давай створимо крутий коллаж!</h4>
                 <c:if test="${error != null}">
@@ -36,6 +36,11 @@
                 <button class="btn btn-lg btn-primary btn-block" formaction="/collage">Створити</button>
             </form>
         </div>
+        <footer class="footer">
+            <div class="container">
+                <p class="text-muted"><a href="https://github.com/nmonokov/TwitterPhotoCollage">GitHub</a> | <a href="/logs">Logs</a>.</p>
+            </div>
+        </footer>
     </body>
 </html>
 
