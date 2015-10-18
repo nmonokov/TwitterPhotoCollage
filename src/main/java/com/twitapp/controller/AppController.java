@@ -86,7 +86,7 @@ public class AppController {
     @RequestMapping(value = "collage/image", method = RequestMethod.GET,
             produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> drawCollage() throws IOException{
-        String filename = "../webapps/project-data/images/collage.png";
+        String filename = "..\\webapps\\project-data\\images\\collage.png";
         BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(filename)));
         byte[] image = new byte[inputStream.available()];
         for(int i = 0, count = 0; (i = inputStream.read()) != -1;){
@@ -100,7 +100,7 @@ public class AppController {
     @RequestMapping(value = "/logs", method = RequestMethod.GET,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<byte[]> downloadLogs() throws IOException{
-        String filename = "../webapps/project-data/log_file.log";
+        String filename = "..\\logs\\log_file.log";
         BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(filename)));
         byte[] log = new byte[inputStream.available()];
         for(int i = 0, count = 0; (i = inputStream.read()) != -1;){

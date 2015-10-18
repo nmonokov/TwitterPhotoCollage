@@ -274,9 +274,9 @@ public class TwitterUserServiceImpl implements TwitterUserService {
             }
             g2.dispose();
 
-            new File("../webapps/project-data").mkdir();
-            new File("../webapps/project-data/images").mkdir();
-            ImageIO.write(collage, "png", new FileImageOutputStream(new File("../webapps/project-data/images/collage.png")));
+            new File("..\\webapps\\project-data").mkdir();
+            new File("..\\webapps\\project-data\\images").mkdir();
+            ImageIO.write(collage, "png", new FileImageOutputStream(new File("..\\webapps\\project-data\\images\\collage.png")));
         }
     }
 }
