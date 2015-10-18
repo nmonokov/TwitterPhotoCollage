@@ -14,6 +14,11 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <mime-mapping>
+        <extension>ico</extension>
+        <mime-type>image/vnd.microsoft.icon</mime-type>
+    </mime-mapping>
+
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
