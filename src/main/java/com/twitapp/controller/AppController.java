@@ -53,8 +53,14 @@ public class AppController {
             height = Integer.parseInt(heightView);
         }
         if(login != null && width != null && height != null) {
+            if (width == 0 || height == 0) {
+                String template = width == 0 ? "Ширина" : "Висота";
+                message = template + " не може бути 0.";
+                request.getSession().setAttribute("error", message);
+                return "redirect:/";
+            }
             try {
-                login = login.charAt(0) == '@' ? login.split("@")[1].trim() : login;
+                login = login.charAt(0) == '@' ? login.split("@")[1].trim() : login.trim();
                 List<TwitterUser> list = twitterUserService.getListOfUsersByLogin(login, width, height, diffSize);
                 twitterUserService.generateCollage(list, width, height, diffSize);
             } catch (TwitterException e) {
@@ -65,7 +71,7 @@ public class AppController {
                     DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                     Calendar cal = Calendar.getInstance();
                     message = "Вибачте, цей сервер тимчасово недоступний. Спробуйте знову через 15 хвилин.";
-                    LOG.error("Twitter server timeout for 15 minutes. Current time" +  dateFormat.format(cal.getTime()) + ". Status: " + e.getStatusCode());
+                    LOG.error("Twitter server timeout for 15 minutes. Current time" + dateFormat.format(cal.getTime()) + ". Status: " + e.getStatusCode());
                 } else {
                     message = "Вибачте, на сервері виникла помилка. Спробуйте знову.";
                     LOG.error("Another twitter server error. Status: " + e.getStatusCode(), e);

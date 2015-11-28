@@ -38,7 +38,7 @@
         </div>
         <footer class="footer">
             <div class="container">
-                <p class="text-muted"><a href="https://github.com/nmonokov/TwitterPhotoCollage">GitHub</a> | <a href="/logs">Logs</a>.</p>
+                <p class="text-muted"><a href="https://github.com/nmonokov/TwitterPhotoCollage">GitHub</a> | <a href="/logs">Logs</a></p>
             </div>
         </footer>
     </body>
