@@ -38,7 +38,7 @@ public class AppController {
         return "login";
     }
 
-    @RequestMapping(value = "collage", method = RequestMethod.GET)
+    @RequestMapping(value = "collage", method = RequestMethod.POST)
     public String generateCollage(@RequestParam("login") String login,
                                   @RequestParam("width") String widthView,
                                   @RequestParam("height") String heightView,
@@ -61,8 +61,14 @@ public class AppController {
             }
             try {
                 login = login.charAt(0) == '@' ? login.split("@")[1].trim() : login.trim();
+                long beforeRequest = SimpleDateFormat.getTimeInstance().getCalendar().getTimeInMillis();
                 List<TwitterUser> list = twitterUserService.getListOfUsersByLogin(login, width, height, diffSize);
+                long afterRequest = SimpleDateFormat.getTimeInstance().getCalendar().getTimeInMillis();
+                LOG.info("Request time: " + (afterRequest - beforeRequest)/1000f);
+                long beforeGen = SimpleDateFormat.getTimeInstance().getCalendar().getTimeInMillis();
                 twitterUserService.generateCollage(list, width, height, diffSize);
+                long afterGen = SimpleDateFormat.getTimeInstance().getCalendar().getTimeInMillis();
+                LOG.info("Total time generating: " + (afterGen - beforeGen)/1000f);
             } catch (TwitterException e) {
                 if (e.getStatusCode() == 404) {
                     message = "Користувача з таким логіном не існує.";
@@ -89,7 +95,8 @@ public class AppController {
         return "collage";
     }
 
-    @RequestMapping(value = "collage/image", method = RequestMethod.GET,
+    @RequestMapping(value = "image/collage.png",
+            method = RequestMethod.GET,
             produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> drawCollage() throws IOException{
         String filename = "..\\webapps\\project-data\\images\\collage.png";
@@ -103,7 +110,8 @@ public class AppController {
         return new ResponseEntity<>(image, headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/logs", method = RequestMethod.GET,
+    @RequestMapping(value = "/logs",
+            method = RequestMethod.GET,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<byte[]> downloadLogs() throws IOException{
         String filename = "..\\logs\\log_file.log";

@@ -36,10 +36,7 @@ public class TwitterUserServiceImpl implements TwitterUserService {
     /** Max quantity of an array of ids. */
     private static final int IDS_PER_REQUEST = 100;
 
-    /** Possible width and height of images. SMALL_IMAGE_SIZE used in generating like a step for image. */
-    private static final int SMALL_IMAGE_SIZE = 73;
-    private static final int MEDIUM_IMAGE_SIZE = 146;
-    private static final int BIG_IMAGE_SIZE = 219;
+    public static final int STEP = 73;
 
     @Override
     public List<TwitterUser> getListOfUsersByLogin(String login, int width, int height, boolean diffSize) throws TwitterException {
@@ -57,7 +54,8 @@ public class TwitterUserServiceImpl implements TwitterUserService {
                 friendsListSize = size < friends.size() && friends.size() != 0 ? size : friends.size();
             }
             for (int i = 0; i < friendsListSize; i++) {
-                TwitterUser tu = new TwitterUser(diffSize ? friends.get(i).getOriginalProfileImageURL() : friends.get(i).getBiggerProfileImageURL(),
+                TwitterUser tu = new TwitterUser(friends.get(i).getBiggerProfileImageURL(),
+                        friends.get(i).getOriginalProfileImageURL(),
                         friends.get(i).getStatusesCount());
                 listOfUsers.add(tu);
             }
@@ -157,8 +155,8 @@ public class TwitterUserServiceImpl implements TwitterUserService {
     @Override
     public void generateCollage(List<TwitterUser> users, int width, int height, boolean diffSize) throws IOException {
         if(users.size() != 0) {
-            Integer bgWidthPx = SMALL_IMAGE_SIZE * width;
-            Integer bgHeightPx = SMALL_IMAGE_SIZE * height;
+            Integer bgWidthPx = STEP * width;
+            Integer bgHeightPx = STEP * height;
             Integer cellsWidth;
             Integer cellsHeight;
             // In case when we get a request for big collage, but we don't have so much elements, we should trim image to size of user's friends
@@ -173,7 +171,7 @@ public class TwitterUserServiceImpl implements TwitterUserService {
             BufferedImage collage = new BufferedImage(bgWidthPx, bgHeightPx, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = collage.createGraphics();
 
-            Integer index = 0;
+            Integer imageIndex = 0;
             Integer offsetWidth = 0;
             Integer offsetHeight = 0;
 
@@ -182,9 +180,10 @@ public class TwitterUserServiceImpl implements TwitterUserService {
                     for (int w = 0; w < cellsWidth; w++) {
                         BufferedImage img;
                         try {
-                            img = ImageIO.read(new URL(users.get(index++).getImageURL()));
+                            img = ImageIO.read(new URL(users.get(imageIndex++).getImageURL()));
                         } catch (IIOException e) {
-                            img = new BufferedImage(SMALL_IMAGE_SIZE, SMALL_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
+                            int smallImageSize = ImageSize.SMALL.getSize();
+                            img = new BufferedImage(smallImageSize, smallImageSize, BufferedImage.TYPE_INT_ARGB);
                         }
                         g2.drawImage(img, null, offsetWidth, offsetHeight);
                         offsetWidth += img.getWidth();
@@ -193,7 +192,7 @@ public class TwitterUserServiceImpl implements TwitterUserService {
                             offsetWidth = 0;
                             offsetHeight += img.getHeight();
                         }
-                        if (index == users.size()) {
+                        if (imageIndex == users.size()) {
                             break m;
                         }
                     }
@@ -202,73 +201,73 @@ public class TwitterUserServiceImpl implements TwitterUserService {
                 int [][] sheet = new int[cellsHeight][cellsWidth];
                 m: for(Integer h = 0; h < cellsHeight; h++){
                     for(Integer w = 0; w < cellsWidth; w++){
-                        if (index == users.size() - 1) {
+                        if (imageIndex == users.size() - 1) {
                             break m;
                         }
                         if(sheet[h][w] == 1) {
                             if (w == cellsWidth - 1) {
                                 offsetWidth = 0;
-                                offsetHeight += SMALL_IMAGE_SIZE;
+                                offsetHeight += STEP;
                             } else {
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                                offsetWidth += STEP;
                             }
                             continue;
                         }
                         // Is image BIG
-                        if(ImageSize.BIG.equals(users.get(index).getImageSize())){
-                            if(DrawImageUtils.checkBig(cellsWidth, cellsHeight, sheet, h, w)){
-                                DrawImageUtils.createBig(sheet, h, w, users, index, BIG_IMAGE_SIZE, offsetWidth, offsetHeight, g2);
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                        if(ImageSize.BIG.equals(users.get(imageIndex).getImageSize())){
+                            if(DrawImageUtils.check(ImageSize.BIG, cellsWidth, cellsHeight, sheet, h, w)){
+                                DrawImageUtils.create(ImageSize.BIG, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                                offsetWidth += STEP;
                             // try to fit MEDIUM size
-                            } else if(DrawImageUtils.checkMedium(cellsWidth, cellsHeight, sheet, h, w)){
-                                DrawImageUtils.createMedium(sheet, h, w, users, index, MEDIUM_IMAGE_SIZE, offsetWidth, offsetHeight, g2);
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                            } else if(DrawImageUtils.check(ImageSize.MEDIUM, cellsWidth, cellsHeight, sheet, h, w)){
+                                DrawImageUtils.create(ImageSize.MEDIUM, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                                offsetWidth += STEP;
                             // try to fit SMALL size
-                            } else if(DrawImageUtils.checkSmall(sheet, h, w)){
-                                DrawImageUtils.createSmall(sheet, h, w, users, index, SMALL_IMAGE_SIZE, offsetWidth, offsetHeight, g2);
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                            } else if(DrawImageUtils.check(ImageSize.SMALL, 0, 0, sheet, h, w)){
+                                DrawImageUtils.create(ImageSize.SMALL, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                                offsetWidth += STEP;
 
                                 if (w == cellsWidth - 1) {
                                     offsetWidth = 0;
-                                    offsetHeight += SMALL_IMAGE_SIZE;
+                                    offsetHeight += STEP;
                                 }
                             }
                         // Is image MEDIUM
-                        } else if(ImageSize.MEDIUM.equals(users.get(index).getImageSize())){
-                            if(DrawImageUtils.checkMedium(cellsWidth, cellsHeight, sheet, h, w)){
-                                DrawImageUtils.createMedium(sheet, h, w, users, index, MEDIUM_IMAGE_SIZE, offsetWidth, offsetHeight, g2);
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                        } else if(ImageSize.MEDIUM.equals(users.get(imageIndex).getImageSize())){
+                            if(DrawImageUtils.check(ImageSize.MEDIUM, cellsWidth, cellsHeight, sheet, h, w)){
+                                DrawImageUtils.create(ImageSize.MEDIUM, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                                offsetWidth += STEP;
                             // try to fit SMALL size
-                            } else if(DrawImageUtils.checkSmall(sheet, h, w)){
-                                DrawImageUtils.createSmall(sheet, h, w, users, index, SMALL_IMAGE_SIZE, offsetWidth, offsetHeight, g2);
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                            } else if(DrawImageUtils.check(ImageSize.SMALL, 0, 0, sheet, h, w)){
+                                DrawImageUtils.create(ImageSize.SMALL, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                                offsetWidth += STEP;
 
                                 if (w == cellsWidth - 1) {
                                     offsetWidth = 0;
-                                    offsetHeight += SMALL_IMAGE_SIZE;
+                                    offsetHeight += STEP;
                                 }
                             }
                         // Is image SMALL
-                        } else if(ImageSize.SMALL.equals(users.get(index).getImageSize())){
-                            if(DrawImageUtils.checkSmall(sheet, h, w)){
-                                DrawImageUtils.createSmall(sheet, h, w, users, index, SMALL_IMAGE_SIZE, offsetWidth, offsetHeight, g2);
-                                offsetWidth += SMALL_IMAGE_SIZE;
+                        } else if(ImageSize.SMALL.equals(users.get(imageIndex).getImageSize())){
+                            if(DrawImageUtils.check(ImageSize.SMALL, 0, 0, sheet, h, w)){
+                                DrawImageUtils.create(ImageSize.SMALL, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                                offsetWidth += STEP;
 
                                 if (w == cellsWidth - 1) {
                                     offsetWidth = 0;
-                                    offsetHeight += SMALL_IMAGE_SIZE;
+                                    offsetHeight += STEP;
                                 }
                             } else {
                                 if (w == cellsWidth - 1) {
                                     offsetWidth = 0;
-                                    offsetHeight += SMALL_IMAGE_SIZE;
+                                    offsetHeight += STEP;
                                 } else {
-                                    offsetWidth += SMALL_IMAGE_SIZE;
+                                    offsetWidth += STEP;
                                 }
                                 continue;
                             }
                         }
-                        index++;
+                        imageIndex++;
                     }
                 }
             }

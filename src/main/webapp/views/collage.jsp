@@ -16,7 +16,7 @@
   <body>
     <div class="container">
         <div style="text-align:center;">
-          <img id="img" name="img" src="/collage/image" >
+          <img id="img" name="img" src="/image/collage.png" >
         </div>
         <form class="form-signin">
           <button class="btn btn-lg btn-primary btn-block" formaction="/back" formmethod="get">Назад</button>
@@ -24,7 +24,7 @@
     </div>
     <footer class="footer">
         <div class="container">
-            <p class="text-muted"><a href="https://github.com/nmonokov/TwitterPhotoCollage">GitHub</a> | <a href="/logs">Logs</a>.</p>
+            <p class="text-muted"><a href="https://github.com/nmonokov/TwitterPhotoCollage">GitHub</a> | <a href="/logs">Logs</a></p>
         </div>
     </footer>
   </body>

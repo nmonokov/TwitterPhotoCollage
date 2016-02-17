@@ -17,7 +17,7 @@
 
     <body>
         <div class="container">
-            <form class="form-signin" method="get">
+            <form class="form-signin" method="post">
                 <h4 class="form-signin-heading" style="text-align:center">Давай створимо крутий коллаж!</h4>
                 <c:if test="${error != null}">
                     <div style="color:red" id="error">${error}</div>

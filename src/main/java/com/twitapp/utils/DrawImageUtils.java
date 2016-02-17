@@ -1,5 +1,6 @@
 package com.twitapp.utils;
 
+import com.twitapp.dict.ImageSize;
 import com.twitapp.user.data.TwitterUser;
 import org.imgscalr.Scalr;
 
@@ -13,64 +14,43 @@ import java.util.List;
 
 public class DrawImageUtils {
 
-    public static boolean checkSmall(int[][] sheet, Integer h, Integer w){
-        return sheet[h][w] == 0;
-    }
-
-    public static void createSmall(int[][] sheet, Integer h, Integer w, List<TwitterUser> users, Integer index,
-                                   Integer pxSize, Integer offsetWidth, Integer offsetHeight, Graphics2D g2) throws IOException {
-        sheet[h][w] = 1;
-        BufferedImage img;
-        try {
-            img = Scalr.resize(ImageIO.read(new URL(users.get(index).getImageURL())), Scalr.Mode.FIT_TO_WIDTH, pxSize, 0);
-        } catch (IIOException e) {
-            img = new BufferedImage(pxSize, pxSize, BufferedImage.TYPE_INT_ARGB);
+    public static boolean check(ImageSize imageSize, Integer cellsWidth, Integer cellsHeight, int[][] sheet, Integer h, Integer w){
+        if (imageSize.isSmall()) {
+            return sheet[h][w] == 0;
         }
-        g2.drawImage(img, null, offsetWidth, offsetHeight);
-    }
-
-    public static boolean checkMedium(Integer cellsWidth, Integer cellsHeight, int[][] sheet, Integer h, Integer w){
-        return (cellsWidth - 1) - w >= 1 && (cellsHeight - 1) - h >= 1 && sheet[h][w] == 0 && sheet[h][w+1] == 0 && sheet[h+1][w] == 0 && sheet[h+1][w+1] == 0;
-    }
-
-    public static void createMedium(int[][] sheet, Integer h, Integer w, List<TwitterUser> users, Integer index,
-                                    Integer pxSize, Integer offsetWidth, Integer offsetHeight, Graphics2D g2) throws IOException {
-        sheet[h][w] = 1;
-        sheet[h][w+1] = 1;
-        sheet[h+1][w] = 1;
-        sheet[h+1][w+1] = 1;
-        BufferedImage img;
-        try {
-            img = Scalr.resize(ImageIO.read(new URL(users.get(index).getImageURL())), Scalr.Mode.FIT_TO_WIDTH, pxSize, 0);
-        } catch (IIOException e) {
-            img = new BufferedImage(pxSize, pxSize, BufferedImage.TYPE_INT_ARGB);
+        int cellSize = imageSize.ordinal();
+        if ((cellsWidth - 1) - w >= cellSize && (cellsHeight - 1) - h >= cellSize) {
+            for (int i = h; i <= h + cellSize; i++) {
+                for (int k = w; k <= w + cellSize; k++) {
+                    if (sheet[i][k] != 0) return false;
+                }
+            }
+        } else {
+            return false;
         }
-        g2.drawImage(img, null, offsetWidth, offsetHeight);
+        return true;
     }
 
-    public static boolean checkBig(Integer cellsWidth, Integer cellsHeight, int[][] sheet, Integer h, Integer w){
-        return (cellsWidth - 1) - w >= 2 && (cellsHeight - 1) - h >= 2 && sheet[h][w] == 0 && sheet[h][w+1] == 0 && sheet[h][w+2] == 0
-                && sheet[h+1][w] == 0 && sheet[h+2][w] == 0
-                && sheet[h+1][w+1] == 0 && sheet[h+1][w+2] == 0
-                && sheet[h+2][w+1] == 0 && sheet[h+2][w+2] == 0;
-    }
-
-    public static void createBig(int[][] sheet, Integer h, Integer w, List<TwitterUser> users, Integer index,
-                                 Integer pxSize, Integer offsetWidth, Integer offsetHeight, Graphics2D g2) throws IOException {
-        sheet[h][w] = 1;
-        sheet[h][w+1] = 1;
-        sheet[h][w+2] = 1;
-        sheet[h+1][w] = 1;
-        sheet[h+2][w] = 1;
-        sheet[h+1][w+1] = 1;
-        sheet[h+1][w+2] = 1;
-        sheet[h+2][w+1] = 1;
-        sheet[h+2][w+2] = 1;
-
+    public static void create(ImageSize imageSize, int[][] sheet, Integer h, Integer w, List<TwitterUser> users, Integer index,
+                              Integer offsetWidth, Integer offsetHeight, Graphics2D g2) throws IOException {
+        URL url;
+        Integer pxSize = imageSize.getSize();
+        if (imageSize.isSmall()) {
+            url = new URL(users.get(index).getImageURL());
+            sheet[h][w] = 1;
+        } else {
+            url = new URL(users.get(index).getBigImageUrl());
+            int cellSize = imageSize.ordinal();
+            for (int i = h; i <= h + cellSize; i++) {
+                for (int k = w; k <= w + cellSize; k++) {
+                    sheet[i][k] = 1;
+                }
+            }
+        }
         BufferedImage img;
         try {
-            img = Scalr.resize(ImageIO.read(new URL(users.get(index).getImageURL())), Scalr.Mode.FIT_TO_WIDTH, pxSize, 0);
-        } catch (IIOException e) {
+            img = Scalr.resize(ImageIO.read(url), Scalr.Mode.FIT_TO_WIDTH, pxSize, 0);
+        } catch (IIOException | IllegalArgumentException e) {
             img = new BufferedImage(pxSize, pxSize, BufferedImage.TYPE_INT_ARGB);
         }
         g2.drawImage(img, null, offsetWidth, offsetHeight);

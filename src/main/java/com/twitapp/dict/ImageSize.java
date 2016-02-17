@@ -1,7 +1,21 @@
 package com.twitapp.dict;
 
 public enum ImageSize {
-    SMALL,
-    MEDIUM,
-    BIG;
+    SMALL(73),
+    MEDIUM(146),
+    BIG(219);
+
+    private int size;
+
+    ImageSize(int size) {
+        this.size = size;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public boolean isSmall() {
+        return this == SMALL;
+    }
 }
