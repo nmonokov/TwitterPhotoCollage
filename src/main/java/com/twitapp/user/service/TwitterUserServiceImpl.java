@@ -213,60 +213,10 @@ public class TwitterUserServiceImpl implements TwitterUserService {
                             }
                             continue;
                         }
-                        // Is image BIG
-                        if(ImageSize.BIG.equals(users.get(imageIndex).getImageSize())){
-                            if(DrawImageUtils.check(ImageSize.BIG, cellsWidth, cellsHeight, sheet, h, w)){
-                                DrawImageUtils.create(ImageSize.BIG, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
-                                offsetWidth += STEP;
-                            // try to fit MEDIUM size
-                            } else if(DrawImageUtils.check(ImageSize.MEDIUM, cellsWidth, cellsHeight, sheet, h, w)){
-                                DrawImageUtils.create(ImageSize.MEDIUM, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
-                                offsetWidth += STEP;
-                            // try to fit SMALL size
-                            } else if(DrawImageUtils.check(ImageSize.SMALL, 0, 0, sheet, h, w)){
-                                DrawImageUtils.create(ImageSize.SMALL, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
-                                offsetWidth += STEP;
-
-                                if (w == cellsWidth - 1) {
-                                    offsetWidth = 0;
-                                    offsetHeight += STEP;
-                                }
-                            }
-                        // Is image MEDIUM
-                        } else if(ImageSize.MEDIUM.equals(users.get(imageIndex).getImageSize())){
-                            if(DrawImageUtils.check(ImageSize.MEDIUM, cellsWidth, cellsHeight, sheet, h, w)){
-                                DrawImageUtils.create(ImageSize.MEDIUM, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
-                                offsetWidth += STEP;
-                            // try to fit SMALL size
-                            } else if(DrawImageUtils.check(ImageSize.SMALL, 0, 0, sheet, h, w)){
-                                DrawImageUtils.create(ImageSize.SMALL, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
-                                offsetWidth += STEP;
-
-                                if (w == cellsWidth - 1) {
-                                    offsetWidth = 0;
-                                    offsetHeight += STEP;
-                                }
-                            }
-                        // Is image SMALL
-                        } else if(ImageSize.SMALL.equals(users.get(imageIndex).getImageSize())){
-                            if(DrawImageUtils.check(ImageSize.SMALL, 0, 0, sheet, h, w)){
-                                DrawImageUtils.create(ImageSize.SMALL, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
-                                offsetWidth += STEP;
-
-                                if (w == cellsWidth - 1) {
-                                    offsetWidth = 0;
-                                    offsetHeight += STEP;
-                                }
-                            } else {
-                                if (w == cellsWidth - 1) {
-                                    offsetWidth = 0;
-                                    offsetHeight += STEP;
-                                } else {
-                                    offsetWidth += STEP;
-                                }
-                                continue;
-                            }
-                        }
+                        ArrayList<Integer> offsets = createImage(users.get(imageIndex).getImageSize(),
+                                cellsWidth, cellsHeight, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+                        offsetHeight = offsets.get(0);
+                        offsetWidth = offsets.get(1);
                         imageIndex++;
                     }
                 }
@@ -277,5 +227,26 @@ public class TwitterUserServiceImpl implements TwitterUserService {
             new File("..\\webapps\\project-data\\images").mkdir();
             ImageIO.write(collage, "png", new FileImageOutputStream(new File("..\\webapps\\project-data\\images\\collage.png")));
         }
+    }
+
+    private ArrayList<Integer> createImage(ImageSize imageSize, Integer cellsWidth, Integer cellsHeight, int[][] sheet,
+                             Integer h, Integer w, List<TwitterUser> users,
+                             Integer imageIndex, Integer offsetWidth, Integer offsetHeight, Graphics2D g2) throws IOException {
+        ArrayList<Integer> offsets = new ArrayList<>();
+        if (DrawImageUtils.check(imageSize, cellsWidth, cellsHeight, sheet, h, w)) {
+            DrawImageUtils.create(imageSize, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+            offsetWidth += STEP;
+            if (w == cellsWidth - 1) {
+                offsetWidth = 0;
+                offsetHeight += STEP;
+            }
+        } else {
+            offsets = createImage(imageSize.next(), cellsWidth, cellsHeight, sheet, h, w, users, imageIndex, offsetWidth, offsetHeight, g2);
+        }
+        if(offsets.isEmpty()) {
+            offsets.add(offsetHeight);
+            offsets.add(offsetWidth);
+        }
+        return offsets;
     }
 }

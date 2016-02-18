@@ -18,4 +18,8 @@ public enum ImageSize {
     public boolean isSmall() {
         return this == SMALL;
     }
+
+    public ImageSize next() {
+        return this == BIG ? MEDIUM : SMALL;
+    }
 }
